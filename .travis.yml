@@ -11,8 +11,14 @@ matrix:
   - env:
     - NAME="strict compilation"
     install: true
-    script: echo "MAVEN_OPTS='-Xmx3000m'" > ~/.mavenrc && mvn clean -Pstrict -pl '!benchmarks'
+    script:
+    - touch /tmp/NOW
+    - echo GIBSTUDYSTART $(date)
+    - echo "MAVEN_OPTS='-Xmx3000m'" > ~/.mavenrc && mvn clean -Pstrict -pl '!benchmarks'
       compile test-compile -B
+    - echo GIBSTUDYEND $(date)
+    - cd $TRAVIS_BUILD_DIR
+    - echo TESTNUM $(find . -name TEST-*.xml -newer /tmp/NOW | wc -l)
     sudo: false
   - before_script:
     - unset _JAVA_OPTIONS
@@ -20,8 +26,14 @@ matrix:
     - NAME="processing module test"
     install: echo "MAVEN_OPTS='-Xmx3000m'" > ~/.mavenrc && mvn install -q -ff -DskipTests
       -B
-    script: echo "MAVEN_OPTS='-Xmx512m'" > ~/.mavenrc && mvn test -B -Pparallel-test
-      -Dmaven.fork.count=2 -pl processing
+    script:
+    - touch /tmp/NOW
+    - echo GIBSTUDYSTART $(date)
+    - echo "MAVEN_OPTS='-Xmx512m'" > ~/.mavenrc && mvn test -B -Pparallel-test -Dmaven.fork.count=2
+      -pl processing
+    - echo GIBSTUDYEND $(date)
+    - cd $TRAVIS_BUILD_DIR
+    - echo TESTNUM $(find . -name TEST-*.xml -newer /tmp/NOW | wc -l)
     sudo: false
   - before_script:
     - unset _JAVA_OPTIONS
@@ -29,7 +41,13 @@ matrix:
     - NAME="server module test"
     install: echo "MAVEN_OPTS='-Xmx3000m'" > ~/.mavenrc && mvn install -q -ff -DskipTests
       -B
-    script: echo "MAVEN_OPTS='-Xmx512m'" > ~/.mavenrc && mvn test -B -pl server
+    script:
+    - touch /tmp/NOW
+    - echo GIBSTUDYSTART $(date)
+    - echo "MAVEN_OPTS='-Xmx512m'" > ~/.mavenrc && mvn test -B -pl server
+    - echo GIBSTUDYEND $(date)
+    - cd $TRAVIS_BUILD_DIR
+    - echo TESTNUM $(find . -name TEST-*.xml -newer /tmp/NOW | wc -l)
     sudo: false
   - before_script:
     - unset _JAVA_OPTIONS
@@ -37,8 +55,14 @@ matrix:
     - NAME="other modules test"
     install: echo "MAVEN_OPTS='-Xmx3000m'" > ~/.mavenrc && mvn install -q -ff -DskipTests
       -B
-    script: echo "MAVEN_OPTS='-Xmx512m'" > ~/.mavenrc && mvn test -B -Pparallel-test
-      -Dmaven.fork.count=2 -pl '!processing,!server'
+    script:
+    - touch /tmp/NOW
+    - echo GIBSTUDYSTART $(date)
+    - echo "MAVEN_OPTS='-Xmx512m'" > ~/.mavenrc && mvn test -B -Pparallel-test -Dmaven.fork.count=2
+      -pl '!processing,!server'
+    - echo GIBSTUDYEND $(date)
+    - cd $TRAVIS_BUILD_DIR
+    - echo TESTNUM $(find . -name TEST-*.xml -newer /tmp/NOW | wc -l)
     sudo: false
   - after_failure:
     - for v in ~/shared/logs/*.log ; do echo $v logtail ======================== ;
@@ -52,7 +76,12 @@ matrix:
     install:
     - mvn install -q -ff -DskipTests -B
     script:
+    - touch /tmp/NOW
+    - echo GIBSTUDYSTART $(date)
     - $TRAVIS_BUILD_DIR/ci/travis_script_integration.sh
+    - echo GIBSTUDYEND $(date)
+    - cd $TRAVIS_BUILD_DIR
+    - echo TESTNUM $(find . -name TEST-*.xml -newer /tmp/NOW | wc -l)
     services:
     - docker
     sudo: required
